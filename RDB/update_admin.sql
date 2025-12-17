@@ -1,0 +1,1 @@
+UPDATE Participant SET Password = '$2y$10$bU6PMnAzAPyA.5E7zaIEzu/p5IJno5lXDHmeQJJ6Gk005buydwyUa' WHERE Username = 'admin';
