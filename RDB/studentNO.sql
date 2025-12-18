@@ -29,6 +29,7 @@ CREATE TABLE Participate (
     MarathonID INT,
     UserID INT,
     EntryNO VARCHAR(50) DEFAULT NULL,
+    Hotel VARCHAR(100) DEFAULT NULL,
     TimeRecord VARCHAR(20) DEFAULT NULL,
     Standings INT DEFAULT NULL,
     PRIMARY KEY (MarathonID, UserID),

@@ -30,8 +30,17 @@ if (isset($_POST['update_profile'])) {
     if (empty($email)) $errors[] = 'Email is required.';
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Invalid email format.';
     if (empty($phone)) $errors[] = 'Phone is required.';
-    if (empty($age) || !is_numeric($age) || $age < 1 || $age > 120) $errors[] = 'Age must be between 1-120.';
+    if (!preg_match('/^[0-9+\-\s]{7,20}$/', $phone)) $errors[] = 'Invalid phone format. Use digits, +, - and spaces (7-20 chars).';
+    if (empty($age) || !is_numeric($age) || $age < 16 || $age > 69) $errors[] = 'Age must be between 16-69.';
     if (empty($sex)) $errors[] = 'Gender is required.';
+    if (empty($bestRecord)) $errors[] = 'Best Record is required.';
+    if (!preg_match('/^\d{2}:\d{2}:\d{2}$/', $bestRecord)) $errors[] = 'Best Record must be in HH:MM:SS format.';
+    if (empty($nationality)) $errors[] = 'Nationality is required.';
+    if (!preg_match('/^[A-Za-z\s\-]{2,50}$/', $nationality)) $errors[] = 'Nationality must contain only letters, spaces or hyphen (2-50 chars).';
+    if (empty($passportNo)) $errors[] = 'Passport No. is required.';
+    if (!preg_match('/^[A-Za-z0-9]{5,20}$/', $passportNo)) $errors[] = 'Passport No. must be alphanumeric (5-20 chars).';
+    if (empty($address)) $errors[] = 'Address is required.';
+    if (strlen($address) < 5) $errors[] = 'Address is too short.';
 
     if (count($errors) > 0) {
         $flash = ['type' => 'error', 'text' => implode(' ', $errors)];
@@ -239,7 +248,7 @@ if (isset($_POST['update_profile'])) {
                 </div>
                 <div class="form-group">
                     <label for="age">Age *</label>
-                    <input type="number" id="age" name="age" value="<?php echo htmlspecialchars($user['Age'] ?? ''); ?>" min="1" max="120" required>
+                    <input type="number" id="age" name="age" value="<?php echo htmlspecialchars($user['Age'] ?? ''); ?>" min="16" max="69" required>
                 </div>
             </div>
 
@@ -262,28 +271,28 @@ if (isset($_POST['update_profile'])) {
             <div class="form-row">
                 <div class="form-group">
                     <label for="phone">Phone *</label>
-                    <input type="tel" id="phone" name="phone" value="<?php echo htmlspecialchars($user['Phone'] ?? ''); ?>" required>
+                    <input type="tel" id="phone" name="phone" value="<?php echo htmlspecialchars($user['Phone'] ?? ''); ?>" pattern="[0-9+\-\s]{7,20}" required>
                 </div>
                 <div class="form-group">
-                    <label for="nationality">Nationality</label>
-                    <input type="text" id="nationality" name="nationality" value="<?php echo htmlspecialchars($user['Nationality'] ?? ''); ?>" placeholder="e.g., Vietnamese">
+                    <label for="nationality">Nationality *</label>
+                    <input type="text" id="nationality" name="nationality" value="<?php echo htmlspecialchars($user['Nationality'] ?? ''); ?>" pattern="[A-Za-z\s\-]{2,50}" placeholder="e.g., Vietnamese" required>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="passport_no">Passport No.</label>
-                    <input type="text" id="passport_no" name="passport_no" value="<?php echo htmlspecialchars($user['PassportNO'] ?? ''); ?>">
+                    <label for="passport_no">Passport No. *</label>
+                    <input type="text" id="passport_no" name="passport_no" value="<?php echo htmlspecialchars($user['PassportNO'] ?? ''); ?>" pattern="[A-Za-z0-9]{5,20}" required>
                 </div>
                 <div class="form-group">
-                    <label for="best_record">Best Record (Time)</label>
-                    <input type="text" id="best_record" name="best_record" value="<?php echo htmlspecialchars($user['BestRecord'] ?? ''); ?>" placeholder="e.g., 2:30:45">
+                    <label for="best_record">Best Record (Time) *</label>
+                    <input type="text" id="best_record" name="best_record" value="<?php echo htmlspecialchars($user['BestRecord'] ?? ''); ?>" pattern="\d{2}:\d{2}:\d{2}" placeholder="HH:MM:SS" required>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="address">Address</label>
-                <textarea id="address" name="address" placeholder="Your full address"><?php echo htmlspecialchars($user['Address'] ?? ''); ?></textarea>
+                <label for="address">Address *</label>
+                <textarea id="address" name="address" placeholder="Your full address" minlength="5" required><?php echo htmlspecialchars($user['Address'] ?? ''); ?></textarea>
             </div>
 
             <div class="form-actions">

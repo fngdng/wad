@@ -33,6 +33,7 @@ if (isset($_POST['update_marathon'])) {
     $errors = [];
     if (empty($raceName)) $errors[] = 'Race name is required.';
     if (empty($date)) $errors[] = 'Date is required.';
+    if ($date < date('Y-m-d')) $errors[] = 'Cannot set a race date in the past. Please select today or a future date.';
     if (empty($status)) $errors[] = 'Status is required.';
     if ($status === 'Cancelled' && empty($cancelReason)) {
         $errors[] = 'Cancel reason is required when status is Cancelled.';
@@ -303,7 +304,7 @@ if (isset($_POST['update_marathon'])) {
             <div class="form-row">
                 <div class="form-group">
                     <label for="date">Race Date *</label>
-                    <input type="date" id="date" name="date" value="<?php echo htmlspecialchars($marathon['Date'] ?? ''); ?>" required>
+                    <input type="date" id="date" name="date" value="<?php echo htmlspecialchars($marathon['Date'] ?? ''); ?>" min="<?= date('Y-m-d') ?>" required>
                 </div>
 
                 <div class="form-group">
@@ -311,6 +312,7 @@ if (isset($_POST['update_marathon'])) {
                     <select id="status" name="status" required onchange="toggleCancelReason()">
                         <option value="">-- Select Status --</option>
                         <option value="Scheduled" <?php echo ($marathon['Status'] === 'Scheduled') ? 'selected' : ''; ?>>Scheduled</option>
+                        <option value="Expired" <?php echo ($marathon['Status'] === 'Expired') ? 'selected' : ''; ?>>Expired</option>
                         <option value="Cancelled" <?php echo ($marathon['Status'] === 'Cancelled') ? 'selected' : ''; ?>>Cancelled</option>
                     </select>
                 </div>

@@ -25,8 +25,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 		$isValidPassword = false;
 		if ($user) {
+			// Debug: Log password verification attempt
+			$verified = password_verify($password, $user['Password']);
+			error_log("Login attempt - User: $username | Hash verify: " . ($verified ? 'YES' : 'NO') . " | Password len: " . strlen($password));
+			
 			// Prefer hashed verification, but keep plain-text fallback for legacy rows
-			$isValidPassword = password_verify($password, $user['Password']) || $user['Password'] === $password;
+			$isValidPassword = $verified || $user['Password'] === $password;
+		} else {
+			error_log("Login attempt - User not found: $username");
 		}
 
 		if ($user && $isValidPassword) {

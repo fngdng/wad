@@ -11,6 +11,8 @@ if (isset($_POST['create_marathon'])) {
     $date = $_POST['date'] ?? '';
     if ($name === '' || $date === '') {
         $flash = ['type' => 'error', 'text' => 'Please enter race name and date.'];
+    } elseif ($date < date('Y-m-d')) {
+        $flash = ['type' => 'error', 'text' => 'Cannot create a race with a past date. Please select a future date.'];
     } else {
         $stmt = $pdo->prepare("INSERT INTO Marathon (RaceName, Date, Status) VALUES (?, ?, 'Scheduled')");
         $stmt->execute([$name, $date]);
@@ -76,18 +78,20 @@ if (isset($_POST['delete_participant'])) {
     <?php if($flash): ?>
         <div class="alert <?= $flash['type'] ?>"><?= htmlspecialchars($flash['text']) ?></div>
     <?php endif; ?>
-
+    <h3>1. Create New Marathon</h3>
     <div class="card">
-        <h3>0. Create New Marathon</h3>
         <form method="POST" class="form-inline">
             <input type="text" name="race_name" placeholder="Race Name" required>
-            <input type="date" name="date" required>
+            <input type="date" name="date" min="<?= date('Y-m-d') ?>" required>
             <button type="submit" name="create_marathon" class="btn primary">Add Race</button>
         </form>
     </div>
 
-    <h3>1. Marathon Management</h3>
+    <h3>2. Marathon Management</h3>
     <?php 
+    // Auto-mark expired races
+    $pdo->exec("UPDATE Marathon SET Status = 'Expired' WHERE Date < CURDATE() AND Status = 'Scheduled'");
+    
     $races = $pdo->query("SELECT * FROM Marathon")->fetchAll();
     ?>
     <table class="data-table">
@@ -97,12 +101,12 @@ if (isset($_POST['delete_participant'])) {
             <td><?= $r['MarathonID'] ?></td>
             <td><?= $r['RaceName'] ?></td>
             <td><?= $r['Date'] ?></td>
-            <td style="color: <?= $r['Status']=='Cancelled'?'red':'green' ?>"><?= $r['Status'] ?></td>
+            <td style="color: <?= $r['Status']=='Cancelled'?'red':($r['Status']=='Expired'?'gray':'green') ?>"><?= $r['Status'] ?></td>
             <td><?= htmlspecialchars($r['CancelReason'] ?? '-') ?></td>
             <td>
                 <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                     <a href="edit_marathon.php?id=<?= $r['MarathonID'] ?>" class="btn ghost" style="text-decoration: none; padding: 8px 12px; white-space: nowrap;">✏️ Edit</a>
-                    <?php if($r['Status'] != 'Cancelled'): ?>
+                    <?php if($r['Status'] != 'Cancelled' && $r['Status'] != 'Expired'): ?>
                     <form method="POST" style="display: flex; gap: 8px; align-items: center;">
                         <input type="hidden" name="mid" value="<?= $r['MarathonID'] ?>">
                         <input type="text" name="cancel_reason" placeholder="Reason (COVID, Weather, etc.)" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--line); background: rgba(255,255,255,0.03); color: var(--text); min-width: 150px;">
@@ -117,7 +121,7 @@ if (isset($_POST['delete_participant'])) {
         <?php endforeach; ?>
     </table>
 
-    <h3>2. Participant & Results Management</h3>
+    <h3>3. Participant & Results Management</h3>
     <?php
     // Join 3 tables for full display
     $sql = "SELECT P.*, U.Name, U.Username, M.RaceName 
@@ -128,11 +132,12 @@ if (isset($_POST['delete_participant'])) {
     $list = $pdo->query($sql)->fetchAll();
     ?>
     <table class="data-table">
-        <tr><th>Race</th><th>Participant</th><th>BIB No.</th><th>Results (Time/Rank)</th><th>Update</th></tr>
+        <tr><th>Race</th><th>Participant</th><th>Hotel</th><th>BIB No.</th><th>Results (Time/Rank)</th><th>Update</th></tr>
         <?php foreach($list as $l): ?>
         <tr>
             <td><?= $l['RaceName'] ?></td>
             <td><?= $l['Name'] ?> (<?= $l['Username'] ?>)</td>
+            <td><?= htmlspecialchars($l['Hotel'] ?? '-') ?></td>
             
             <form method="POST">
                 <input type="hidden" name="mid" value="<?= $l['MarathonID'] ?>">
@@ -152,7 +157,7 @@ if (isset($_POST['delete_participant'])) {
         <?php endforeach; ?>
     </table>
 
-    <h3>3. Participant Management</h3>
+    <h3>4. Participant Management</h3>
     <table class="data-table">
         <tr><th>ID</th><th>Username</th><th>Full Name</th><th>Role</th><th>Email</th><th>Phone</th><th>Races</th><th>Actions</th></tr>
         <?php 
@@ -187,9 +192,8 @@ if (isset($_POST['delete_participant'])) {
             </tr>
         <?php endforeach; ?>
     </table>
-
+    <h3>5. Export All Tables (Read-Only)</h3>
     <div class="card">
-        <h3>4. Export All Tables (Read-Only)</h3>
         <p class="muted">Quick data review available. Use Edit/Delete buttons above for modifications.</p>
         <div class="table-scroll">
             <h4>Participant (Summary)</h4>
@@ -223,12 +227,13 @@ if (isset($_POST['delete_participant'])) {
 
             <h4>Participate</h4>
             <table class="data-table compact">
-                <tr><th>MarathonID</th><th>UserID</th><th>Entry</th><th>Time</th><th>Rank</th></tr>
-                <?php foreach($pdo->query("SELECT MarathonID, UserID, EntryNO, TimeRecord, Standings FROM Participate ORDER BY MarathonID DESC") as $p): ?>
+                <tr><th>MarathonID</th><th>UserID</th><th>Entry</th><th>Hotel</th><th>Time</th><th>Rank</th></tr>
+                <?php foreach($pdo->query("SELECT MarathonID, UserID, EntryNO, Hotel, TimeRecord, Standings FROM Participate ORDER BY MarathonID DESC") as $p): ?>
                     <tr>
                         <td><?= $p['MarathonID'] ?></td>
                         <td><?= $p['UserID'] ?></td>
                         <td><?= $p['EntryNO'] ?></td>
+                        <td><?= htmlspecialchars($p['Hotel'] ?? '-') ?></td>
                         <td><?= $p['TimeRecord'] ?></td>
                         <td><?= $p['Standings'] ?></td>
                     </tr>

@@ -95,8 +95,9 @@ include 'lib/db.php';
                             <!-- Registration Button -->
                             <div class="registration-section">
                                 <?php if ($can_register && isset($_SESSION['user_id'])): ?>
-                                    <form method="POST" action="my_page.php">
+                                    <form method="POST" action="my_page.php" style="display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center;">
                                         <input type="hidden" name="mid" value="<?= $race['MarathonID'] ?>">
+                                        <input type="text" name="hotel" placeholder="Hotel name" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--line); background: rgba(255,255,255,0.03); color: var(--text);">
                                         <button type="submit" name="join_marathon" class="btn primary">Register</button>
                                     </form>
                                 <?php elseif ($is_registered): ?>

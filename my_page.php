@@ -21,8 +21,9 @@ if (isset($_POST['join_marathon'])) {
             $flash = ['type' => 'error', 'text' => 'Race already passed, cannot register.'];
         } else {
             try {
-                $stmt = $pdo->prepare("INSERT INTO Participate (MarathonID, UserID) VALUES (?, ?)");
-                $stmt->execute([$_POST['mid'], $uid]);
+                $hotel = trim($_POST['hotel'] ?? '');
+                $stmt = $pdo->prepare("INSERT INTO Participate (MarathonID, UserID, Hotel) VALUES (?, ?, ?)");
+                $stmt->execute([$_POST['mid'], $uid, $hotel]);
                 $flash = ['type' => 'success', 'text' => 'Successfully registered! Waiting for Admin to assign BIB number.'];
             } catch (Exception $e) {
                 $flash = ['type' => 'error', 'text' => 'Already registered or invalid information.'];
@@ -40,7 +41,7 @@ if (isset($_POST['cancel_join'])) {
     if ($race) {
         $raceDate = new DateTime($race['Date']);
         $today = new DateTime('today');
-        if ($race['Status'] !== 'Scheduled' || $raceDate <= $today) {
+        if (!in_array($race['Status'], ['Scheduled']) || $raceDate <= $today) {
             $flash = ['type' => 'error', 'text' => 'Cannot cancel - race is running/past or cancelled. History preserved.'];
         } else {
             $stmt = $pdo->prepare("DELETE FROM Participate WHERE MarathonID = ? AND UserID = ?");
@@ -51,6 +52,9 @@ if (isset($_POST['cancel_join'])) {
 }
 
 // Get list of OPEN marathons (Not cancelled)
+// Auto-mark expired races
+$pdo->exec("UPDATE Marathon SET Status = 'Expired' WHERE Date < CURDATE() AND Status = 'Scheduled'");
+
 $marathons = $pdo->query("SELECT * FROM Marathon WHERE Status = 'Scheduled' AND Date >= CURDATE() ORDER BY Date ASC")->fetchAll();
 
 // Get my participation history
@@ -89,6 +93,9 @@ $my_history->execute([$uid]);
                         <?php endforeach; ?>
                     </select>
                 </label>
+                <label>Hotel
+                    <input type="text" name="hotel" placeholder="Hotel name" required>
+                </label>
                 <button type="submit" name="join_marathon" class="btn primary">Register Now</button>
             </form>
         </div>
@@ -96,12 +103,13 @@ $my_history->execute([$uid]);
         <div class="card">
             <h3>2. My Participation History</h3>
             <table class="data-table">
-                <tr><th>Race</th><th>Date</th><th>BIB No.</th><th>Time</th><th>Race Status</th><th>Cancel Reason</th><th>Action</th></tr>
+                <tr><th>Race</th><th>Date</th><th>BIB No.</th><th>Hotel</th><th>Time</th><th>Race Status</th><th>Cancel Reason</th><th>Action</th></tr>
                 <?php while($row = $my_history->fetch()): ?>
                 <tr>
                     <td><?= $row['RaceName'] ?></td>
                     <td><?= $row['Date'] ?></td>
                     <td><?= $row['EntryNO'] ? $row['EntryNO'] : 'Pending...' ?></td>
+                    <td><?= htmlspecialchars($row['Hotel'] ?? '-') ?></td>
                     <td><?= $row['TimeRecord'] ?: '-' ?></td>
                     <td><span class="tag <?= strtolower($row['RaceStatus']) ?>"><?= $row['RaceStatus'] ?></span></td>
                     <td><?= htmlspecialchars($row['CancelReason'] ?? '-') ?></td>
