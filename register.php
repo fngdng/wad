@@ -77,11 +77,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = '⚠️ Best Record must be in HH:MM:SS format.';
     }
 
-    // Validate required Nationality (letters, spaces and hyphen)
+    // Validate required Nationality
     if ($nationality === '') {
-        $errors[] = '⚠️ Please enter Nationality.';
-    } elseif (!preg_match('/^[A-Za-z\s\-]{2,50}$/', $nationality)) {
-        $errors[] = '⚠️ Nationality must contain only letters, spaces or hyphen (2-50 chars).';
+        $errors[] = '⚠️ Please select Nationality.';
     }
 
     // Validate required Passport No. (alphanumeric 5-20)
@@ -160,7 +158,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="text" name="best_record" placeholder="HH:MM:SS" required pattern="\d{2}:\d{2}:\d{2}" value="<?= htmlspecialchars($formData['bestRecord'] ?? '') ?>">
                 </label>
                 <label>Nationality*
-                    <input type="text" name="n" maxlength="50" required pattern="[A-Za-z\s\-]{2,50}" value="<?= htmlspecialchars($formData['nationality'] ?? '') ?>">
+                    <select name="n" required>
+                        <option value="">--Select Country--</option>
+                        <option value="Vietnam" <?= ($formData['nationality'] ?? '') === 'Vietnam' ? 'selected' : '' ?>>Vietnam</option>
+                        <option value="United States" <?= ($formData['nationality'] ?? '') === 'United States' ? 'selected' : '' ?>>United States</option>
+                        <option value="United Kingdom" <?= ($formData['nationality'] ?? '') === 'United Kingdom' ? 'selected' : '' ?>>United Kingdom</option>
+                        <option value="Japan" <?= ($formData['nationality'] ?? '') === 'Japan' ? 'selected' : '' ?>>Japan</option>
+                        <option value="South Korea" <?= ($formData['nationality'] ?? '') === 'South Korea' ? 'selected' : '' ?>>South Korea</option>
+                        <option value="China" <?= ($formData['nationality'] ?? '') === 'China' ? 'selected' : '' ?>>China</option>
+                        <option value="Thailand" <?= ($formData['nationality'] ?? '') === 'Thailand' ? 'selected' : '' ?>>Thailand</option>
+                        <option value="Singapore" <?= ($formData['nationality'] ?? '') === 'Singapore' ? 'selected' : '' ?>>Singapore</option>
+                        <option value="Malaysia" <?= ($formData['nationality'] ?? '') === 'Malaysia' ? 'selected' : '' ?>>Malaysia</option>
+                        <option value="Indonesia" <?= ($formData['nationality'] ?? '') === 'Indonesia' ? 'selected' : '' ?>>Indonesia</option>
+                        <option value="Philippines" <?= ($formData['nationality'] ?? '') === 'Philippines' ? 'selected' : '' ?>>Philippines</option>
+                        <option value="Australia" <?= ($formData['nationality'] ?? '') === 'Australia' ? 'selected' : '' ?>>Australia</option>
+                        <option value="Canada" <?= ($formData['nationality'] ?? '') === 'Canada' ? 'selected' : '' ?>>Canada</option>
+                        <option value="France" <?= ($formData['nationality'] ?? '') === 'France' ? 'selected' : '' ?>>France</option>
+                        <option value="Germany" <?= ($formData['nationality'] ?? '') === 'Germany' ? 'selected' : '' ?>>Germany</option>
+                        <option value="India" <?= ($formData['nationality'] ?? '') === 'India' ? 'selected' : '' ?>>India</option>
+                        <option value="Other" <?= ($formData['nationality'] ?? '') === 'Other' ? 'selected' : '' ?>>Other</option>
+                    </select>
                 </label>
                 <label>Passport No.*
                     <input type="text" name="passport" maxlength="50" required pattern="[A-Za-z0-9]{5,20}" value="<?= htmlspecialchars($formData['passportNO'] ?? '') ?>">

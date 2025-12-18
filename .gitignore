@@ -1,0 +1,8 @@
+check_all_passwords.php
+debug_password.php
+login_debug.php
+reset_password.php
+test_full_flow.php
+test_hash.php
+test_login_manual.php
+test_register_login.php

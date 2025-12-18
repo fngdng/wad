@@ -36,7 +36,6 @@ if (isset($_POST['update_profile'])) {
     if (empty($bestRecord)) $errors[] = 'Best Record is required.';
     if (!preg_match('/^\d{2}:\d{2}:\d{2}$/', $bestRecord)) $errors[] = 'Best Record must be in HH:MM:SS format.';
     if (empty($nationality)) $errors[] = 'Nationality is required.';
-    if (!preg_match('/^[A-Za-z\s\-]{2,50}$/', $nationality)) $errors[] = 'Nationality must contain only letters, spaces or hyphen (2-50 chars).';
     if (empty($passportNo)) $errors[] = 'Passport No. is required.';
     if (!preg_match('/^[A-Za-z0-9]{5,20}$/', $passportNo)) $errors[] = 'Passport No. must be alphanumeric (5-20 chars).';
     if (empty($address)) $errors[] = 'Address is required.';
@@ -275,7 +274,26 @@ if (isset($_POST['update_profile'])) {
                 </div>
                 <div class="form-group">
                     <label for="nationality">Nationality *</label>
-                    <input type="text" id="nationality" name="nationality" value="<?php echo htmlspecialchars($user['Nationality'] ?? ''); ?>" pattern="[A-Za-z\s\-]{2,50}" placeholder="e.g., Vietnamese" required>
+                    <select id="nationality" name="nationality" required>
+                        <option value="">--Select Country--</option>
+                        <option value="Vietnam" <?php echo ($user['Nationality'] ?? '') === 'Vietnam' ? 'selected' : ''; ?>>Vietnam</option>
+                        <option value="United States" <?php echo ($user['Nationality'] ?? '') === 'United States' ? 'selected' : ''; ?>>United States</option>
+                        <option value="United Kingdom" <?php echo ($user['Nationality'] ?? '') === 'United Kingdom' ? 'selected' : ''; ?>>United Kingdom</option>
+                        <option value="Japan" <?php echo ($user['Nationality'] ?? '') === 'Japan' ? 'selected' : ''; ?>>Japan</option>
+                        <option value="South Korea" <?php echo ($user['Nationality'] ?? '') === 'South Korea' ? 'selected' : ''; ?>>South Korea</option>
+                        <option value="China" <?php echo ($user['Nationality'] ?? '') === 'China' ? 'selected' : ''; ?>>China</option>
+                        <option value="Thailand" <?php echo ($user['Nationality'] ?? '') === 'Thailand' ? 'selected' : ''; ?>>Thailand</option>
+                        <option value="Singapore" <?php echo ($user['Nationality'] ?? '') === 'Singapore' ? 'selected' : ''; ?>>Singapore</option>
+                        <option value="Malaysia" <?php echo ($user['Nationality'] ?? '') === 'Malaysia' ? 'selected' : ''; ?>>Malaysia</option>
+                        <option value="Indonesia" <?php echo ($user['Nationality'] ?? '') === 'Indonesia' ? 'selected' : ''; ?>>Indonesia</option>
+                        <option value="Philippines" <?php echo ($user['Nationality'] ?? '') === 'Philippines' ? 'selected' : ''; ?>>Philippines</option>
+                        <option value="Australia" <?php echo ($user['Nationality'] ?? '') === 'Australia' ? 'selected' : ''; ?>>Australia</option>
+                        <option value="Canada" <?php echo ($user['Nationality'] ?? '') === 'Canada' ? 'selected' : ''; ?>>Canada</option>
+                        <option value="France" <?php echo ($user['Nationality'] ?? '') === 'France' ? 'selected' : ''; ?>>France</option>
+                        <option value="Germany" <?php echo ($user['Nationality'] ?? '') === 'Germany' ? 'selected' : ''; ?>>Germany</option>
+                        <option value="India" <?php echo ($user['Nationality'] ?? '') === 'India' ? 'selected' : ''; ?>>India</option>
+                        <option value="Other" <?php echo ($user['Nationality'] ?? '') === 'Other' ? 'selected' : ''; ?>>Other</option>
+                    </select>
                 </div>
             </div>
 
